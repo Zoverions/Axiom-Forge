@@ -97,3 +97,90 @@ button[disabled] {
     background-color: #ccc;
     cursor: not-allowed;
 }
+
+#axiom-screen {
+    width: 80%;
+    max-width: 800px;
+}
+
+.axiom-form-container {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    margin-bottom: 2rem;
+}
+
+#axiom-input {
+    width: 70%;
+    padding: 1rem;
+    font-size: 1rem;
+    border: 1px solid #ccc;
+    border-radius: 5px 0 0 5px;
+}
+
+#add-axiom-button {
+    border-radius: 0 5px 5px 0;
+}
+
+#axiom-list {
+    list-style-type: none;
+    padding: 0;
+    width: 100%;
+    text-align: left;
+}
+
+#axiom-list li {
+    background-color: white;
+    padding: 1rem;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    margin-bottom: 1rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.delete-axiom-button {
+    background-color: #dc3545;
+    padding: 0.5rem 1rem;
+    font-size: 1rem;
+}
+
+.delete-axiom-button:hover {
+    background-color: #c82333;
+}
+
+.generate-dilemma-button {
+    background-color: #28a745;
+    margin-left: 10px;
+}
+
+.generate-dilemma-button:hover {
+    background-color: #218838;
+}
+
+#dilemma-container {
+    margin-top: 2rem;
+    padding: 2rem;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    background-color: #f8f9fa;
+    width: 100%;
+    text-align: left;
+}
+
+#dilemma-options {
+    margin-top: 1rem;
+}
+
+#dilemma-options button {
+    display: block;
+    width: 100%;
+    margin-bottom: 0.5rem;
+    text-align: left;
+    background-color: #17a2b8;
+}
+
+#dilemma-options button:hover {
+    background-color: #138496;
+}

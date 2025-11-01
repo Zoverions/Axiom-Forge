@@ -35,6 +35,24 @@
                 </div>
             </div>
         </div>
+
+        <div id="axiom-screen" class="screen">
+            <h2 id="axiom-header">Axiom Management (Collaborative Clarifier)</h2>
+            <div class="axiom-form-container">
+                <input type="text" id="axiom-input" placeholder="Enter your moral axiom...">
+                <button id="add-axiom-button">Add Axiom</button>
+            </div>
+            <ul id="axiom-list">
+                <!-- Axioms will be dynamically inserted here -->
+            </ul>
+            <div id="dilemma-container" style="display: none;">
+                <h3>Ethical Dilemma</h3>
+                <p id="dilemma-text"></p>
+                <div id="dilemma-options"></div>
+                <button id="close-dilemma-button">Close Dilemma</button>
+            </div>
+            <button id="back-to-mode-selection">Back</button>
+        </div>
     </div>
     <script src="script.js"></script>
 </body>
