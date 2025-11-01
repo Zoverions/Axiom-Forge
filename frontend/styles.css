@@ -150,6 +150,10 @@ button[disabled] {
     background-color: #c82333;
 }
 
+#axiom-list li input[type="checkbox"] {
+    margin-right: 1rem;
+}
+
 .generate-dilemma-button {
     background-color: #28a745;
     margin-left: 10px;

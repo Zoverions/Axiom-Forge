@@ -20,6 +20,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const dilemmaText = document.getElementById('dilemma-text');
     const dilemmaOptions = document.getElementById('dilemma-options');
     const closeDilemmaButton = document.getElementById('close-dilemma-button');
+    const redTeamDilemmaButton = document.getElementById('generate-red-team-dilemma-button');
 
     let currentMode = 'collaborative'; // Default mode
 
@@ -35,7 +36,19 @@ document.addEventListener('DOMContentLoaded', () => {
             axiomList.innerHTML = '';
             axioms.forEach(axiom => {
                 const li = document.createElement('li');
-                li.textContent = axiom.text;
+
+                const textSpan = document.createElement('span');
+                textSpan.textContent = axiom.text;
+
+                if (currentMode === 'red-team') {
+                    const checkbox = document.createElement('input');
+                    checkbox.type = 'checkbox';
+                    checkbox.dataset.axiomText = axiom.text;
+                    checkbox.onchange = updateRedTeamButtonVisibility;
+                    li.appendChild(checkbox);
+                }
+
+                li.appendChild(textSpan);
                 li.dataset.id = axiom.id;
 
                 const deleteButton = document.createElement('button');
@@ -43,13 +56,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 deleteButton.className = 'delete-axiom-button';
                 deleteButton.onclick = () => deleteAxiom(axiom.id);
 
-                const dilemmaButton = document.createElement('button');
-                dilemmaButton.textContent = 'Generate Dilemma';
-                dilemmaButton.className = 'generate-dilemma-button';
-                dilemmaButton.onclick = () => generateDilemma(axiom.text);
-
                 const buttonGroup = document.createElement('div');
-                buttonGroup.appendChild(dilemmaButton);
+                if (currentMode === 'collaborative') {
+                    const dilemmaButton = document.createElement('button');
+                    dilemmaButton.textContent = 'Generate Dilemma';
+                    dilemmaButton.className = 'generate-dilemma-button';
+                    dilemmaButton.onclick = () => generateDilemma([axiom.text]);
+                    buttonGroup.appendChild(dilemmaButton);
+                }
+
                 buttonGroup.appendChild(deleteButton);
 
                 li.appendChild(buttonGroup);
@@ -90,12 +105,17 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    const generateDilemma = async (axiomText) => {
+    const updateRedTeamButtonVisibility = () => {
+        const selectedAxioms = axiomList.querySelectorAll('input[type="checkbox"]:checked');
+        redTeamDilemmaButton.style.display = selectedAxioms.length === 2 ? 'block' : 'none';
+    };
+
+    const generateDilemma = async (axioms) => {
         try {
             const response = await fetch('/api/dilemma', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ axiom_text: axiomText }),
+                body: JSON.stringify({ mode: currentMode, axioms: axioms }),
             });
             const dilemma = await response.json();
 
@@ -127,9 +147,16 @@ document.addEventListener('DOMContentLoaded', () => {
         button.addEventListener('click', () => {
             currentMode = button.dataset.mode;
             axiomHeader.textContent = `Axiom Management (${currentMode === 'collaborative' ? 'Collaborative Clarifier' : 'Personal Red-Team'})`;
+            redTeamDilemmaButton.style.display = 'none';
             fetchAxioms();
             switchScreen('axiom');
         });
+    });
+
+    redTeamDilemmaButton.addEventListener('click', () => {
+        const selectedAxioms = Array.from(axiomList.querySelectorAll('input[type="checkbox"]:checked'))
+            .map(checkbox => checkbox.dataset.axiomText);
+        generateDilemma(selectedAxioms);
     });
 
     backToModeSelectionButton.addEventListener('click', () => switchScreen('modeSelection'));

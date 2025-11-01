@@ -52,15 +52,28 @@ def delete_axiom(axiom_id):
 
     return jsonify({'message': 'Axiom deleted successfully'})
 
-from .dilemma_engine import generate_collaborative_dilemma
+from .dilemma_engine import generate_collaborative_dilemma, generate_red_team_dilemma
 
 @app.route('/api/dilemma', methods=['POST'])
 def get_dilemma():
     data = request.get_json()
-    if not data or 'axiom_text' not in data:
-        return jsonify({'error': 'Axiom text is required'}), 400
+    if not data or 'mode' not in data or 'axioms' not in data:
+        return jsonify({'error': 'Mode and axioms are required'}), 400
 
-    dilemma = generate_collaborative_dilemma(data['axiom_text'])
+    mode = data['mode']
+    axioms = data['axioms']
+
+    if mode == 'collaborative':
+        if len(axioms) != 1:
+            return jsonify({'error': 'Collaborative mode requires exactly one axiom'}), 400
+        dilemma = generate_collaborative_dilemma(axioms[0])
+    elif mode == 'red-team':
+        if len(axioms) != 2:
+            return jsonify({'error': 'Red-team mode requires exactly two axioms'}), 400
+        dilemma = generate_red_team_dilemma(axioms[0], axioms[1])
+    else:
+        return jsonify({'error': 'Invalid mode specified'}), 400
+
     return jsonify(dilemma)
 
 @app.route('/')
