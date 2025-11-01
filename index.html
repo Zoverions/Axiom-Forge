@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Axiom Forge</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div id="app">
+        <div id="welcome-screen" class="screen">
+            <img src="images/welcome_screen.png" alt="Human-AI Cognitive Symbiosis" class="welcome-image">
+            <h1>Welcome to Axiom Forge: Your Personal Ethical Compass.</h1>
+            <p>A Human-AI Cognitive Symbiote designed to facilitate profound, personalized ethical self-reflection and refinement.</p>
+            <button id="begin-button">Begin</button>
+        </div>
+
+        <div id="mode-selection-screen" class="screen">
+            <img src="images/mode_selection.png" alt="Mode Selection" class="mode-image">
+            <h2>Choose Your Mode</h2>
+            <div class="mode-container">
+                <div class="mode">
+                    <h3>Collaborative Clarifier</h3>
+                    <p>A supportive environment for exploring the implications of one's beliefs.</p>
+                    <button class="select-mode-button" data-mode="collaborative">Select</button>
+                </div>
+                <div class="mode">
+                    <h3>Personal Red-Team</h3>
+                    <p>This mode will rigorously challenge your deeply held beliefs. It is designed to expose contradictions and potential weaknesses. This process can be intense and may lead to cognitive dissonance. You are in complete control and can exit at any time.</p>
+                    <div class="consent-container">
+                        <input type="checkbox" id="red-team-consent">
+                        <label for="red-team-consent">I understand and willingly consent to engage with the Personal Red-Team protocol. I affirm my desire for this rigorous self-examination.</label>
+                    </div>
+                    <button class="select-mode-button" data-mode="red-team" disabled>Select</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
