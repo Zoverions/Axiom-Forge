@@ -1,61 +1,82 @@
-# Wiring Guide: DIY Litter Robot Controller
+# Wiring Guide: Arduino Nano Litter Robot Controller
 
-This guide assumes you are using an **ESP32** microcontroller and an **L298N** Motor Driver. This setup replaces the original circuit board.
+This guide details the wiring for replacing the Litter Robot controller with an **Arduino Nano**, **L298N Motor Driver**, and **LM2596 Buck Converter**.
 
-## Components Needed
-1.  **Microcontroller:** ESP32 Development Board (NodeMCU-32S or similar).
-2.  **Motor Driver:** L298N Dual H-Bridge module.
-3.  **Power Supply:** 12V DC Adapter (The original Litter Robot power supply is usually 15V DC, check the label! If it is 15V, ensure your L298N supports it and DO NOT feed 15V directly to the ESP32. Use a buck converter (step-down) to 5V for the ESP32).
-4.  **Sensors:**
-    *   **Cat Sensor:** Reuse the original weight switch or a generic limit switch.
-    *   **Position Sensors:** Reuse the original Hall Effect sensors (usually 3 wires: VCC, GND, Signal) or magnetic reed switches.
+## Components
+*   **Microcontroller:** Arduino Nano (5V Logic).
+*   **Motor Driver:** L298N Dual H-Bridge Module.
+*   **Power Regulation:** LM2596 DC-DC Buck Converter (Input: 15V, Output: 5V).
+*   **Power Supply:** Original 15V DC Adapter.
+*   **Sensors:** Original Hall Effect sensors and Cat Sensor (Switch).
+*   **Passive Components:** 10kΩ Pull-up resistors (if sensors are open-collector), 10uF Capacitor (Motor noise suppression).
 
-## Wiring Connections
+## Wiring Diagram
 
 ### 1. Power Distribution
-*   **12V/15V Source +** -> L298N `12V` Input
-*   **12V/15V Source -** -> L298N `GND`
-*   **L298N `GND`** -> ESP32 `GND` (Common Ground is critical)
-*   **Buck Converter (12V/15V -> 5V)** -> ESP32 `5V` / `VIN` pin.
+The system is powered by the original 15V supply. The Motor Driver gets 15V directly, while the Arduino and sensors run on regulated 5V.
+
+*   **15V Power Supply (+)** -> L298N `12V` Input **AND** LM2596 `IN+`
+*   **15V Power Supply (-)** -> L298N `GND` **AND** LM2596 `IN-` **AND** Arduino `GND`
+*   **LM2596 `OUT+` (5V)** -> Arduino `5V` (or `VIN` if stable 7-12V, but 5V pin is preferred for regulated 5V source) **AND** Sensor VCCs.
+*   **LM2596 `OUT-`** -> Common Ground.
 
 ### 2. Motor Connection (L298N)
-The Litter Robot motor has two wires.
-*   **Motor Wire A** -> L298N `OUT1`
-*   **Motor Wire B** -> L298N `OUT2`
+*   **L298N `OUT1`** -> Motor Wire A
+*   **L298N `OUT2`** -> Motor Wire B
+*   *(Optional)* Connect a 10uF capacitor across the motor terminals to reduce noise.
 
-### 3. Motor Control (ESP32 -> L298N)
-*   **ESP32 GPIO 26** -> L298N `IN1`
-*   **ESP32 GPIO 27** -> L298N `IN2`
-*   **ESP32 GPIO 14** -> L298N `ENA` (PWM Speed Control - remove jumper if present)
+### 3. Logic Connections (Arduino -> L298N)
+*   **Arduino D11** -> L298N `ENA` (PWM Speed Control)
+*   **Arduino D12** -> L298N `IN1` (Direction A)
+*   **Arduino D13** -> L298N `IN2` (Direction B)
 
-### 4. Sensors
+### 4. Sensors & Inputs
 *   **Cat Sensor (Weight Switch):**
     *   One side to **GND**
-    *   Other side to **ESP32 GPIO 33** (Code uses internal Pull-up)
+    *   Other side to **Arduino D4**
+    *   *Note: Code uses `INPUT_PULLUP`. If false triggers occur, add external 10k resistor to 5V.*
 
-*   **Home Position Sensor (Hall Effect / Magnet):**
-    *   Detects when the globe is in the level "Home" position.
-    *   **VCC** -> 3.3V or 5V (Check sensor spec)
+*   **Home Position Sensor (Hall Effect):**
+    *   **VCC** -> 5V
     *   **GND** -> GND
-    *   **Signal** -> **ESP32 GPIO 32**
+    *   **Signal** -> **Arduino D2**
+    *   *Note: Code uses `INPUT_PULLUP`.*
 
-*   **Dump Position Sensor (Hall Effect / Magnet):**
-    *   Detects when the globe is fully rotated to dump waste.
-    *   **VCC** -> 3.3V or 5V
+*   **Dump Position Sensor (Hall Effect):**
+    *   **VCC** -> 5V
     *   **GND** -> GND
-    *   **Signal** -> **ESP32 GPIO 35**
+    *   **Signal** -> **Arduino D3**
+    *   *Note: Code uses `INPUT_PULLUP`.*
 
-## Summary Pinout
+### 5. Optional Controls (Buttons & LEDs)
+*   **Buttons (Momentary, connect to GND):**
+    *   Cycle Button -> **D5**
+    *   Empty Button -> **D6**
+    *   Fill Button -> **D7**
+*   **LEDs (Series resistor ~220Ω required):**
+    *   Green (Ready) -> **D8**
+    *   Yellow (Cycling) -> **D9**
+    *   Red (Error) -> **D10**
 
-| ESP32 Pin | Function | Description |
+### 6. Safety / Current Sense
+*   **Current Sense:**
+    *   If using L298N with current sense pin or ACS712 module: Connect output to **Arduino A0**.
+    *   *Threshold in code is set to 800 (approx 4V on 5V scale). Adjust based on sensor.*
+
+## Pinout Summary
+
+| Arduino Pin | Function | Description |
 | :--- | :--- | :--- |
-| GPIO 26 | Motor IN1 | Direction Control A |
-| GPIO 27 | Motor IN2 | Direction Control B |
-| GPIO 14 | Motor PWM | Speed Control |
-| GPIO 33 | Cat Sensor | Active LOW (Connect to GND when triggered) |
-| GPIO 32 | Home Sensor | Active LOW (Magnetic sensor) |
-| GPIO 35 | Dump Sensor | Active LOW (Magnetic sensor) |
-
-## Important Notes
-*   **Logic Levels:** The ESP32 is a 3.3V device. If you are reusing existing 5V sensors, verify they are safe for 3.3V logic or use a logic level shifter. Most open-drain hall sensors just need a pull-up to 3.3V.
-*   **Motor Voltage:** Verify your motor voltage. Standard Litter Robots use ~15V. The L298N can handle this, but the ESP32 cannot.
+| D2 | Home Sensor | Input (Active Low) |
+| D3 | Dump Sensor | Input (Active Low) |
+| D4 | Cat Sensor | Input (Active Low) |
+| D5 | Btn: Cycle | Input (Active Low) |
+| D6 | Btn: Empty | Input (Active Low) |
+| D7 | Btn: Fill | Input (Active Low) |
+| D8 | LED: Green | Output |
+| D9 | LED: Yellow | Output |
+| D10 | LED: Red | Output |
+| D11 | Motor PWM | Output (L298N ENA) |
+| D12 | Motor IN1 | Output (L298N IN1) |
+| D13 | Motor IN2 | Output (L298N IN2) |
+| A0 | Current Sense | Analog Input |
